@@ -41,17 +41,23 @@
 #define ESP_RST 4       // Reset to ESP
 #define led     13
 
+// clark's code
+
+#define analog_max 1023
+
+// end of clark's code
+
 int     Pin_Number  = 255;
 int     Pin_Integer = 0;
 float   Pin_Float   = 0.0;
 
-char    ssid[32]        = "iPhoneXR"; 
-char    pass[32]        = "bullybully";
+char    ssid[32]        = "DESKTOP-6F0GE99 0215"; 
+char    pass[32]        = "x5223O4?";
 
 //char    ssid[32]        = "EE-IOT-Platform-02"; 
 //char    pass[32]        = "dUQQE?&W44x7";
 
-char    auth[256]  = "3249371193124d6ba26f0abe3f65ed2de";   // For FYDE projects only
+char    auth[256]  = "c8901de7f6d74fb198a359671ae8ce60";   // For FYDE projects only
 
 
 // **********************************
@@ -208,6 +214,8 @@ void setup() {
   
   digitalWrite(ESP_RST, LOW);     // Assert reset to ESP8266
 
+  pinMode(LED_BUILTIN, OUTPUT);   // Dimmer setup
+
   // ----------------------------------------------------------------------------
   // Start debug serial port at 9600 bps and wait for port to open:
   //
@@ -228,6 +236,29 @@ void setup() {
   digitalWrite(led, HIGH);        // Indicate we are alive and well
 }
 
+// code written by Clark to control dimmer with potientiometer
+
+void dimmer(int duty){
+  
+  int period, onTime, offTime;
+  period = 50;
+  onTime = period * duty/100;
+  offTime = period - onTime;
+
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(onTime);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(offTime);
+}
+
+void dimmer_control() {
+  int analog_reading = analogRead(A0);
+  int duty_cycle = (int) (analog_reading * 100l / 1024l);
+  Serial.println(analog_reading);
+  Serial.println(duty_cycle);
+  dimmer(duty_cycle);
+}
+
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // 
@@ -237,9 +268,12 @@ void setup() {
 // ----------------------------------------------------------------------------
 
 void loop() {
-  
+  Serial.print("hi\n");
   ESP8266_to_Mega();
-  delay(400);
+//  delay(400);
+  for (int a=0; a<40; a++){
+    dimmer_control();
+  }
   ReadSensors();
-  delay(300);  
+//  delay(300);  
 }
