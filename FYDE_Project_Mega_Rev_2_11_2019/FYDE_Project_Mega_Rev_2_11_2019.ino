@@ -35,17 +35,10 @@
  *****************************/
 #include <SimpleTimer.h>
 
-
 #define RDY     2       // Input from 8266
 #define ACK     3       // Output to 8266
 #define ESP_RST 4       // Reset to ESP
 #define led     13
-
-// clark's code
-
-#define analog_max 1023
-
-// end of clark's code
 
 int     Pin_Number  = 255;
 int     Pin_Integer = 0;
@@ -62,7 +55,6 @@ char    auth[256]  = "c8901de7f6d74fb198a359671ae8ce60";   // For FYDE projects 
 
 // **********************************
 void DebugPrint(void) {
-
   Serial.print(Pin_Number);
   Serial.print(",");
   Serial.print(Pin_Integer);
@@ -76,11 +68,8 @@ void DebugPrint(void) {
 
 void Wifi_Setup(void) {
   Serial.println("In WiFI_Setup routine");
-  
   char inchar = '0';      // Assign NULL value
-
   while ((digitalRead(RDY) != 1)) 
-
   {       // Wait for ESP8266 indicate it is ready for programming data
       Serial.println("Waiting for data from ESP");
       delay(2000);
@@ -97,20 +86,14 @@ void Wifi_Setup(void) {
   Serial1.print("\n");
    
   while ((digitalRead(RDY) != 0))  {
-    
     if ((Serial1.available() > 0)) {
-  
         inchar = Serial1.read();  // assigns one byte as serial.read()'s only input one byte at a time
         Serial.print(inchar);
-    }
-    else if (Serial1.available() == 0) {
-      
     }
   }
   digitalWrite(ACK, LOW);     // Acknowledge that RDY went LOW
   
   Serial.println("Exiting WiFI_Setup routine");
-
 }
   
 // =====================================================================
@@ -118,22 +101,20 @@ void Wifi_Setup(void) {
 // =====================================================================
  
 void ESP8266_to_Mega(void) {
-
-  while (Serial1.available() > 0) {
-    //Serial.println("In serial input");
-    // look for the next valid integer in the incoming serial stream:
-
-    Pin_Number  = Serial1.parseInt();
-    Pin_Integer = Serial1.parseInt();
-    Pin_Float   = Serial1.parseFloat();
+    while (Serial1.available() > 0) {
+        //Serial.println("In serial input");
+   
+        // look for the next valid integer in the incoming serial stream:
+        Pin_Number  = Serial1.parseInt();
+        Pin_Integer = Serial1.parseInt();
+        Pin_Float   = Serial1.parseFloat();
      
-    // Look for the newline.
-    if (Serial1.read() == '\n') {
-     // DebugPrint();
+        // Look for the newline.
+        if (Serial1.read() == '\n') {
+            // DebugPrint();
+        }
+        Parser();     // Go to parsing routine
     }
-  Parser();     // Go to parsing routine
-  }
-
 }
 
 
@@ -150,10 +131,8 @@ void Parser(void) {
   //Serial.println("In the parser");
   
   if((Pin_Number == 1) && (Pin_Integer == 1))  {
-    
     //DebugPrint();
     digitalWrite(led, HIGH);
-        
   }
   
   if((Pin_Number == 1) && (Pin_Integer == 0))  {
@@ -163,17 +142,13 @@ void Parser(void) {
 
   if (Pin_Number == 5) { 
     sensorValueOld = Pin_Float; 
-    
     //DebugPrint();    
   }
- 
 }
 
 // **********************************
 void ReadSensors(void) {
-  
   sensorValueNew = analogRead(sensorPin);
-  
   if (abs(sensorValueNew - (sensorValueOld)) > 0) {
     Serial1.print(51);
     Serial1.print(",");
@@ -239,22 +214,21 @@ void setup() {
 // code written by Clark to control dimmer with potientiometer
 
 void dimmer(int duty){
-  
-  int period, onTime, offTime;
-  period = 50;
-  onTime = period * duty/100;
-  offTime = period - onTime;
+    int period, onTime, offTime;
+    period = 50;
+    onTime = period * duty / 100;
+    offTime = period - onTime;
 
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(onTime);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(offTime);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(onTime);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(offTime);
 }
 
 void dimmer_control() {
-  int analog_reading = analogRead(A0);
-  int duty_cycle = (int) (analog_reading * 100l / 1024l);
-  dimmer(duty_cycle);
+    int analog_reading = analogRead(A0);
+    int duty_cycle = (int) (analog_reading * 100L / 1023L);
+    dimmer(duty_cycle);
 }
 
 // ----------------------------------------------------------------------------
@@ -266,22 +240,9 @@ void dimmer_control() {
 // ----------------------------------------------------------------------------
 
 void loop() {
-  long tstart = micros();
-  ESP8266_to_Mega();
-  long tstop = micros();
-
-  Serial.println(tstop - tstart);
-
-  // WOW
-//  delay(400);
-  for (int a=0; a<40; a++){
-    dimmer_control();
-  }
-  //long time1 = micros();
-  ReadSensors();
-  //long time2 = micros();
-
-//Serial.println(time2-time1);
-  
-//  delay(300);  
+    ESP8266_to_Mega();
+    for (int a = 0; a < 40; a++){
+        dimmer_control();
+    }
+    ReadSensors();
 }
