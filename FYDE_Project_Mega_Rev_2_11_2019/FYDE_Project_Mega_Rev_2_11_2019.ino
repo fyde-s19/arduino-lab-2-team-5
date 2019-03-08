@@ -129,7 +129,7 @@ void ESP8266_to_Mega(void) {
      
     // Look for the newline.
     if (Serial1.read() == '\n') {
-      //DebugPrint();
+     // DebugPrint();
     }
   Parser();     // Go to parsing routine
   }
@@ -151,20 +151,20 @@ void Parser(void) {
   
   if((Pin_Number == 1) && (Pin_Integer == 1))  {
     
-    DebugPrint();
+    //DebugPrint();
     digitalWrite(led, HIGH);
         
   }
   
   if((Pin_Number == 1) && (Pin_Integer == 0))  {
-    DebugPrint();
+    //DebugPrint();
     digitalWrite(led, LOW);
   }
 
   if (Pin_Number == 5) { 
     sensorValueOld = Pin_Float; 
     
-    DebugPrint();    
+    //DebugPrint();    
   }
  
 }
@@ -190,9 +190,9 @@ void ReadSensors(void) {
     Serial.print("\n");
     sensorValueOld = sensorValueNew;
   
-    //Serial.print("Analog pin value = ");
-    //Serial.print((sensorValueNew/1023)*5);
-    //Serial.print("V \n");
+    Serial.print("Analog pin value = ");
+    Serial.print((sensorValueNew/1023)*5);
+    Serial.print("V \n");
   }
 }
 
@@ -205,7 +205,7 @@ void ReadSensors(void) {
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-void setup() {
+void setup() {  
   pinMode(led, OUTPUT);
   pinMode(RDY, INPUT_PULLUP);     // RDY Signal from 8266 (default is HIGH)
   pinMode(ACK, OUTPUT);           // ACK Signal to 8266
@@ -254,8 +254,6 @@ void dimmer(int duty){
 void dimmer_control() {
   int analog_reading = analogRead(A0);
   int duty_cycle = (int) (analog_reading * 100l / 1024l);
-  Serial.println(analog_reading);
-  Serial.println(duty_cycle);
   dimmer(duty_cycle);
 }
 
@@ -268,12 +266,22 @@ void dimmer_control() {
 // ----------------------------------------------------------------------------
 
 void loop() {
-  Serial.print("hi\n");
+  long tstart = micros();
   ESP8266_to_Mega();
+  long tstop = micros();
+
+  Serial.println(tstop - tstart);
+
+  // WOW
 //  delay(400);
   for (int a=0; a<40; a++){
     dimmer_control();
   }
+  //long time1 = micros();
   ReadSensors();
+  //long time2 = micros();
+
+//Serial.println(time2-time1);
+  
 //  delay(300);  
 }
